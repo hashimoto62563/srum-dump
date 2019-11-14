@@ -78,9 +78,9 @@ def blob_to_string(binblob):
     except:
         chrblob = binblob
     try:
-        if re.match(b'^(?:[^\x00]\x00)+\x00\x00$', chrblob):
+        if re.match(b'^(?:[^\x00]\x00){7,}.+\x00$', chrblob):
             binblob = chrblob.decode("utf-16-le").strip("\x00")
-        elif re.match(b'^(?:\x00[^\x00])+\x00\x00$', chrblob):
+        elif re.match(b'^(?:\x00[^\x00]){7,}.+\x00$', chrblob):
             binblob = chrblob.decode("utf-16-be").strip("\x00")
         else:
             binblob = chrblob.decode("latin1").strip("\x00")
@@ -253,6 +253,15 @@ def smart_retrieve(ese_table, ese_record_num, column_number):
         col_data = "Empty"
     return col_data
 
+
+def trm( dat ):
+    il = re.compile( r'[\000-\010]|[\013-\014]|[\016-\037]')
+    if isinstance( dat, str ):
+        return il.sub( "", dat )
+    else:
+        return dat
+
+
 def format_output(val, eachformat, eachstyle, xls_sheet):
     """Returns a excel cell with the data formated as specified in the template table"""
     new_cell = WriteOnlyCell(xls_sheet, value = "init")
@@ -305,7 +314,7 @@ def format_output(val, eachformat, eachstyle, xls_sheet):
         val = val
     else:
         val = val
-    new_cell.value = val  
+    new_cell.value = trm(val)
     return new_cell
 
 
